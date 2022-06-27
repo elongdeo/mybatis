@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--<classPathEntry location=""></classPathEntry>-->
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+        <!-- 使用自定义的插件 -->
+        <plugin type="BoltPlugin">
+            <!-- 使用lombok -->
+            <property name="usingLombok" value="true"/>
+            <!-- 使用lombok.Builder -->
+            <property name="usingLombokBuilder" value="false"/>
+            <!-- 使用lombok.experimental.Accessors -->
+            <property name="usingLombokAccessors" value="true"/>
+            <!-- 使用lombok.experimental.Accessors(fluent = true) -->
+            <property name="usingLombokAccessorsFluent" value="true"/>
+            <!-- 使用lombok.experimental.Accessors(chain = true) -->
+            <property name="usingLombokAccessorsChain" value="false"/>
+            <!-- 使用lombok.NoArgsConstructor -->
+            <property name="usingLombokNoArgsConstructor" value="true"/>
+            <!-- service包路径 -->
+            <property name="servicePackage" value="com.elong.deo.dtech.technology.service"/>
+            <!-- serviceImpl包路径 -->
+            <property name="serviceImplPackage" value="com.elong.deo.dtech.technology.service.impl"/>
+            <!-- hsfServiceImpl包路径 -->
+            <property name="hsfServiceImplPackage" value="com.elong.deo.dtech.technology.hsf.impl"/>
+            <!-- hsfService接口包路径 -->
+            <property name="hsfServicePackage" value="com.elong.deo.dtech.technology.hsf"/>
+            <!-- dto包路径 -->
+            <property name="dtoPackage" value="com.elong.deo.dtech.technology.dto"/>
+            <!-- hsf接口及dto工程目录 -->
+            <property name="hsfProject"
+                      value="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java"/>
+        </plugin>
+        <!-- 使用自定义的注释生成器 -->
+        <commentGenerator type="RhinoCommentGenerator">
+            <property name="suppressDate" value="true"/>
+            <!-- 是否去除自动生成的注释 true：是 false:否  -->
+            <property name="suppressAllComments" value="false"/>
+        </commentGenerator>
+        <!--数据库链接URL，用户名、密码 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://tddl.daily.alibaba.net:3306/FABRIC_DATA_DB_APP"
+                        userId="FABRIC_DATA_DB_APP"
+                        password="123456">
+        </jdbcConnection>
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+        <!-- 生成模型的包名和位置 -->
+        <javaModelGenerator targetPackage="com.elong.deo.dtech.technology.dal.entity"
+                            targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- 生成映射文件的包名和位置 -->
+        <sqlMapGenerator targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+                         targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        <!-- 生成DAO的包名和位置 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+                             targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        <!-- 要生成entity/mapper的表名及自定义的DO名 -->
+        <table tableName="rhino_fabric" domainObjectName="FabricDO">
+            <columnOverride column="id">
+                <property name="shardingKey" value="true"/>
+            </columnOverride>
+            <columnOverride column="biz_id_fabric">
+                <property name="bizIdForSelf" value="true"/>
+            </columnOverride>
+        </table>
+        <table tableName="rhino_fabric_color" domainObjectName="FabricColorDO">
+            <columnOverride column="fabric_id">
+                <property name="shardingKey" value="true"/>
+            </columnOverride>
+            <columnOverride column="biz_id_fabric_color">
+                <property name="bizIdForSelf" value="true"/>
+            </columnOverride>
+        </table>
+        <table tableName="rhino_fabric_price" domainObjectName="FabricPriceDO">
+            <columnOverride column="fabric_id">
+                <property name="shardingKey" value="true"/>
+            </columnOverride>
+            <columnOverride column="biz_id_fabric_price">
+                <property name="bizIdForSelf" value="true"/>
+            </columnOverride>
+        </table>
+    </context>
+
+</generatorConfiguration>

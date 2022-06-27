@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="DB2Tables" targetRuntime="MyBatis3" defaultModelType="flat">
+        <!-- 设置TDDL的AppName，用于分析片键 -->
+        <property name="tddlAppName" value="RHINO_DTECH_TECHNOLOGY_DB_APP"/>
+        <!-- 使用自定义的插件 -->
+        <plugin type="RhinoPlugin">
+            <!-- 允许强行大字符修改为字符 -->
+            <property name="enableForceString" value="true"/>
+            <!-- 开启@Data+EqualsAndHashCode注解 -->
+            <property name="enableAnnotationData" value="true"/>
+            <!-- 开启@Accessors(chain = "true")注解 -->
+            <property name="enableAnnotationAccessors" value="false"/>
+            <!-- 开启@Builder注解 -->
+            <property name="enableAnnotationBuilder" value="false"/>
+            <!-- BaseDO字段重写，默认false -->
+            <property name="baseDoOverride" value="true"/>
+            <!-- repo后缀，默认Repo -->
+            <property name="repoSuffix" value="Repo"/>
+            <!-- 是否不使用Repo接口，默认false -->
+            <property name="repoNoInterface" value="true"/>
+            <!-- 是否忽略Criterion值为空，默认false -->
+            <property name="ignoreCriterionValueNull" value="true"/>
+            <!-- repo包路径 -->
+            <property name="repoPackage" value="com.elong.deo.dtech.technology.dao"/>
+            <!-- repo实现包路径 -->
+            <property name="repoImplPackage" value="com.elong.deo.dtech.technology.dao.impl"/>
+            <!-- 创建修改时间精度 -->
+            <property name="datePrecision" value="0"/>
+        </plugin>
+        <!-- 使用自定义的注释生成器 -->
+        <commentGenerator type="RhinoCommentGenerator">
+            <property name="suppressDate" value="true"/>
+            <!-- 是否去除自动生成的注释 true：是 false:否  -->
+            <property name="suppressAllComments" value="false"/>
+        </commentGenerator>
+        <!--        &lt;!&ndash;数据库链接URL，用户名、密码 &ndash;&gt;-->
+        <!--        <jdbcConnection driverClass="com.mysql.jdbc.Driver"-->
+        <!--                        connectionURL="jdbc:mysql://corona.daily.alibaba.net:8000/RHINO_DTECH_TECHNOLOGY_DB_APP"-->
+        <!--                        userId="RHINO_DTECH_TECHNOLOGY_DB_APP"-->
+        <!--                        password="123456">-->
+        <!--        </jdbcConnection>-->
+        <connectionFactory
+                type="TddlConnectionFactory">
+            <property name="tddlAppName" value="RHINO_DTECH_TECHNOLOGY_DB_APP"/>
+        </connectionFactory>
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 生成模型的包名和位置 -->
+        <javaModelGenerator targetPackage="com.elong.deo.dtech.technology.dal.entity"
+                            targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- 生成映射文件的包名和位置 -->
+        <sqlMapGenerator targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+                         targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        <!-- 生成DAO的包名和位置 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+                             targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        <!-- 要生成entity/mapper的表名及自定义的DO名 -->
+        <table tableName="dtech_pkg">
+            <!-- 是否允许批量插入，默认为true -->
+            <property name="insertListEnable" value="true"/>
+            <!-- 是否使用数据库自增，默认为false，如果insertListEnable为false此属性不生效 -->
+            <property name="insertUseGeneratedKeys" value="false"/>
+            <!-- 将生成的方法设置flushCache=true，方法用,分开 -->
+            <property name="flushCacheMethods" value="selectByExample,selectByPrimaryKey"/>
+            <!-- 是否允许生成Repo（已存在不覆盖） -->
+            <property name="repoEnable" value="true"/>
+            <!-- repo自动注入的Sequence名称（不使用数据库自增时有效） -->
+            <property name="repoAutowiredSequenceName" value="dtechPkgSequence"/>
+            <columnOverride column="sample_image_ids" javaType="java.util.List&lt;java.lang.String&gt;"
+                            typeHandler="StringListTypeHandler"/>
+            <columnOverride column="full_size_source_file_id" javaType="java.lang.String[]"
+                            typeHandler="StringArrayTypeHandler"/>
+            <columnOverride column="embro_url" javaType="com.alibaba.fastjson.JSONObject"
+                            typeHandler="JsonObjectTypeHandler"/>
+            <columnOverride column="gsd_url"
+                            javaType="com.alibaba.fastjson.JSONArray"
+                            typeHandler="JsonArrayTypeHandler"/>
+            <columnOverride column="cad_vendor"
+                            javaType="com.elong.deo.dtech.technology.dto.CadVendor"
+                            typeHandler="com.elong.deo.dtech.technology.type.CadVendorTypeHandler"/>
+            <columnOverride column="craft_category_id" property="craftCategory"
+                            javaType="com.elong.deo.dtech.technology.dto.CraftCategory"
+                            typeHandler="com.elong.deo.dtech.technology.type.CraftCategoryTypeHandler"/>
+        </table>
+        <!-- 要生成entity/mapper的表名及自定义的DO名 -->
+        <table tableName="dtech_pkg" domainObjectName="DtechPkg2">
+            <!-- 创建修改时间精度 -->
+            <property name="datePrecision" value="6"/>
+            <!-- 是否允许批量插入，默认为true -->
+            <property name="insertListEnable" value="true"/>
+            <!-- 是否使用数据库自增，默认为false，如果insertListEnable为false此属性不生效 -->
+            <property name="insertUseGeneratedKeys" value="false"/>
+            <!-- 将生成的方法设置flushCache=true，方法用,分开 -->
+            <property name="flushCacheMethods" value="selectByExample,selectByPrimaryKey"/>
+            <!-- 是否允许生成Repo（已存在不覆盖） -->
+            <property name="repoEnable" value="true"/>
+            <!-- repo自动注入的Sequence名称（不使用数据库自增时有效） -->
+            <property name="repoAutowiredSequenceName" value="dtechPkgSequence"/>
+            <columnOverride column="sample_image_ids" javaType="java.util.List&lt;java.lang.String&gt;"
+                            typeHandler="StringListTypeHandler"/>
+            <columnOverride column="full_size_source_file_id" javaType="java.lang.String[]"
+                            typeHandler="StringArrayTypeHandler"/>
+            <columnOverride column="embro_url" javaType="com.elong.deo.dtech.technology.dto.MyObject"
+                            typeHandler="com.elong.deo.dtech.technology.type.MyObjectTypeHandler"/>
+            <columnOverride column="gsd_url"
+                            javaType="java.util.List&lt;com.elong.deo.dtech.technology.dto.MyObject&gt;"
+                            typeHandler="com.elong.deo.dtech.technology.type.MyObjectListHandler"/>
+            <columnOverride column="cad_vendor"
+                            javaType="com.elong.deo.dtech.technology.dto.CadVendor"
+                            typeHandler="com.elong.deo.dtech.technology.type.CadVendorTypeHandler"/>
+            <columnOverride column="craft_category_id" property="craftCategory"
+                            javaType="com.elong.deo.dtech.technology.dto.CraftCategory"
+                            typeHandler="com.elong.deo.dtech.technology.type.CraftCategoryTypeHandler"/>
+            <columnOverride column="style_id">
+                <!-- 配置是否片键，默认false -->
+                <property name="isShardingKey" value="true"/>
+            </columnOverride>
+        </table>
+    </context>
+
+</generatorConfiguration>
