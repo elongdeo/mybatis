@@ -12,7 +12,7 @@
  */
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import com.elong.deo.mybatis.util.CommonPluginUtil;
+import io.github.elongdeo.mybatis.util.CommonPluginUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;

@@ -1,6 +1,6 @@
 package test.test;
 
-import com.elong.deo.mybatis.core.BaseExample;
+import io.github.elongdeo.mybatis.core.BaseExample;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.elong.deo.mybatis.util.CommonPluginUtil.getPrimaryKeyColumnsWithShardingKey;
+import static io.github.elongdeo.mybatis.util.CommonPluginUtil.getPrimaryKeyColumnsWithShardingKey;
 
 /**
  * 

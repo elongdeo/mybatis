@@ -1,10 +1,10 @@
 package test.test;
 
-import com.elong.deo.mybatis.core.INormalMapper;
+import io.github.elongdeo.mybatis.core.INormalMapper;
 
 import java.util.List;
 
-public interface DtechPkgTestMapper extends INormalMapper<DtechPkgTestDO, DtechPkgTestExample> {
+public interface DtechPkgTestMapper extends INormalMapper<Long, DtechPkgTestDO, DtechPkgTestExample> {
     @Override
     long countByExample(DtechPkgTestExample example);
 

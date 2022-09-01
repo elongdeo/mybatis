@@ -68,7 +68,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                     && !importedType.getShortName().equals(getType().getShortName())) {
                 importedTypes.add(importedType);
             }
-            // 泛型类一并引用进来// 2019年11月17日09:58:30 typeHandler javaType='java.util.List<com.elong.deo.dtech.technology.dto.MyObject>' 生成的类型List<com.elong.deo.dtech.technology.dto.MyObject>变成List<MyObject>
+            // 泛型类一并引用进来// 2019年11月17日09:58:30 typeHandler javaType='java.util.List<com.zxhy.dtech.technology.dto.MyObject>' 生成的类型List<com.zxhy.dtech.technology.dto.MyObject>变成List<MyObject>
             if (importedType.getTypeArguments() != null && importedType.getTypeArguments().size() > 0) {
                 importedType.getTypeArguments().forEach(this::addImportedType);
             }

@@ -27,7 +27,7 @@ import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.elong.deo.mybatis.util.CommonPluginUtil.getPrimaryKeyColumnsWithShardingKey;
+import static io.github.elongdeo.mybatis.util.CommonPluginUtil.getPrimaryKeyColumnsWithShardingKey;
 
 /**
  * 

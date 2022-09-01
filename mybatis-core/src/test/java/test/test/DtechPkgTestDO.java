@@ -1,8 +1,8 @@
 package test.test;
 
-import com.elong.deo.mybatis.core.BaseDO;
+import io.github.elongdeo.mybatis.core.BaseDO;
 
-public class DtechPkgTestDO extends BaseDO {
+public class DtechPkgTestDO extends BaseDO<Long> {
 
     /**
      * 款式ID

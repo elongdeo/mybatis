@@ -21,26 +21,39 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <parent>
-        <groupId>com.elong.deo</groupId>
-        <artifactId>mybatis</artifactId>
-        <version>2.0.10-elong-SNAPSHOT</version>
-    </parent>
+    <groupId>io.github.elongdeo</groupId>
     <artifactId>generator-test</artifactId>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <!--compile-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin>3.7.0</maven-compiler-plugin>
+        <maven.deploy.plugin>2.8.2</maven.deploy.plugin>
+        <maven.source.plugin>3.0.1</maven.source.plugin>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
     <dependencies>
         <dependency>
-            <groupId>com.elong.deo</groupId>
+            <groupId>io.github.elongdeo</groupId>
             <artifactId>mybatis-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.elong.deo</groupId>
+            <groupId>io.github.elongdeo</groupId>
             <artifactId>mybatis-generator</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.28</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -104,6 +117,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -119,17 +133,18 @@
                     <configurationFile>src/main/resources/generatorConfig.xml</configurationFile>
                     <verbose>true</verbose>
                     <overwrite>true</overwrite>
+                    <skip>false</skip>
                 </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>
-                        <version>5.1.39</version>
+                        <version>8.0.28</version>
                     </dependency>
                     <dependency>
-                        <groupId>com.elong.deo</groupId>
+                        <groupId>io.github.elongdeo</groupId>
                         <artifactId>mybatis-generator</artifactId>
-                        <version>2.0.10-elong-SNAPSHOT</version>
+                        <version>0.0.1</version>
                     </dependency>
                     <dependency>
                         <groupId>com.github.javaparser</groupId>
@@ -137,6 +152,13 @@
                         <version>3.2.10</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
 

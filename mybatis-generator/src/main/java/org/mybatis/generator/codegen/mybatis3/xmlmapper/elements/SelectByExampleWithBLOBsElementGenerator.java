@@ -75,7 +75,7 @@ public class SelectByExampleWithBLOBsElementGenerator extends
 
         ifElement = new XmlElement("if");
         ifElement.addAttribute(new Attribute("test", "orderByClause != null"));
-        ifElement.addElement(new TextElement("order by ${@com.alibaba.security.SecurityUtil@trimSql4OrderBy(orderByClause)}"));
+        ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 
         if (context.getPlugins()

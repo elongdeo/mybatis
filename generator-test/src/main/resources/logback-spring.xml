@@ -12,7 +12,7 @@
             <charset>utf8</charset>
         </encoder>
     </appender>
-    <logger name="com.elong.deo" level="DEBUG"></logger>
+    <logger name="com.zxhy" level="DEBUG"></logger>
     <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>

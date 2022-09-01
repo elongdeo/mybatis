@@ -20,15 +20,15 @@
             <!-- 使用lombok.NoArgsConstructor -->
             <property name="usingLombokNoArgsConstructor" value="true"/>
             <!-- service包路径 -->
-            <property name="servicePackage" value="com.elong.deo.dtech.technology.service"/>
+            <property name="servicePackage" value="io.github.elongdeo.crm.service"/>
             <!-- serviceImpl包路径 -->
-            <property name="serviceImplPackage" value="com.elong.deo.dtech.technology.service.impl"/>
+            <property name="serviceImplPackage" value="io.github.elongdeo.crm.service.impl"/>
             <!-- hsfServiceImpl包路径 -->
-            <property name="hsfServiceImplPackage" value="com.elong.deo.dtech.technology.hsf.impl"/>
+            <property name="hsfServiceImplPackage" value="io.github.elongdeo.crm.hsf.impl"/>
             <!-- hsfService接口包路径 -->
-            <property name="hsfServicePackage" value="com.elong.deo.dtech.technology.hsf"/>
+            <property name="hsfServicePackage" value="io.github.elongdeo.crm.hsf"/>
             <!-- dto包路径 -->
-            <property name="dtoPackage" value="com.elong.deo.dtech.technology.dto"/>
+            <property name="dtoPackage" value="io.github.elongdeo.crm.dto"/>
             <!-- hsf接口及dto工程目录 -->
             <property name="hsfProject"
                       value="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java"/>
@@ -49,18 +49,18 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.elong.deo.dtech.technology.dal.entity"
+        <javaModelGenerator targetPackage="io.github.elongdeo.crm.dal.entity"
                             targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+        <sqlMapGenerator targetPackage="io.github.elongdeo.crm.dal.mapper"
                          targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.elong.deo.dtech.technology.dal.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.github.elongdeo.crm.dal.mapper"
                              targetProject="/Users/dingyinlong/devtools/idea-workspace-skill/rhino-mybatis-generator/generator-test/src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
