@@ -10,18 +10,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 处理大字符
+ * 处理大字段
  *
  * @author dingyinlong
  * @date 2021年04月29日18:04:12
  */
-public class BigStringPropertyLogic {
+public class BLOBPropertyLogic {
     /**
      * 将大字符强行普通字符
      *
      * @param introspectedTable 表配置信息
      */
-    public static void dealBigStringColumn(IntrospectedTable introspectedTable) {
+    public static void dealBLOBColumn(IntrospectedTable introspectedTable) {
         if (!PluginConfig.forceString) {
             return;
         }
@@ -37,6 +37,8 @@ public class BigStringPropertyLogic {
                     }).collect(Collectors.toList());
             baseColumns.addAll(matched);
             blobColumns.removeAll(matched);
+            baseColumns.addAll(blobColumns);
+            blobColumns.clear();
         }
     }
 }

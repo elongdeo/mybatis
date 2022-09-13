@@ -7,7 +7,7 @@ import io.github.elongdeo.mybatis.logic.standard.FlushCacheLogic;
 import io.github.elongdeo.mybatis.constants.BaseDoPropertyEnum;
 import io.github.elongdeo.mybatis.constants.PluginConfig;
 import io.github.elongdeo.mybatis.constants.PluginConstants;
-import io.github.elongdeo.mybatis.logic.standard.BigStringPropertyLogic;
+import io.github.elongdeo.mybatis.logic.standard.BLOBPropertyLogic;
 import io.github.elongdeo.mybatis.logic.standard.DoSuffixLogic;
 import io.github.elongdeo.mybatis.util.CommonPluginUtil;
 import io.github.elongdeo.mybatis.logic.standard.AssignedFieldLogic;
@@ -633,7 +633,7 @@ public class Plugin extends PluginAdapter {
         // 将boolean/tinyint(1)类型带is_前缀字段生成的属性值改为不带is前缀,防止反序列化失败
         BooleanPropertyLogic.dealBooleanColumn(introspectedTable);
         // 处理大字符
-        BigStringPropertyLogic.dealBigStringColumn(introspectedTable);
+        BLOBPropertyLogic.dealBLOBColumn(introspectedTable);
         // 替换DO为空
         DoSuffixLogic.dealFileName(introspectedTable);
         // 标记片键
