@@ -29,7 +29,7 @@ public class BLOBPropertyLogic {
         List<IntrospectedColumn> baseColumns = introspectedTable.getBaseColumns();
         if (baseColumns != null && blobColumns != null && blobColumns.size() > 0) {
             List<IntrospectedColumn> matched = blobColumns.stream()
-                    .filter(column -> column.isJdbcCharacterColumn() && column.isBLOBColumn())
+                    .filter(column -> column.isJdbcCharacterColumn() && column.isBLOBColumn() && column.getTypeHandler() == null)
                     .peek(column -> {
                         column.setJdbcTypeName("VARCHAR");
                         column.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.String"));
