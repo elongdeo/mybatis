@@ -362,7 +362,7 @@ public class SoftDeleteLogic {
                                                  int gmtModifiedItemIndex, String prefix, IntrospectedTable introspectedTable) {
         XmlElement defaultGmtModified = new XmlElement("if");
         defaultGmtModified.addAttribute(new Attribute("test", prefix + Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtModified") +" == null"));
-        defaultGmtModified.addElement(new TextElement(Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmt_modified") + " = " + CommonPluginUtil.getCurrentTimestamp(introspectedTable) + ","));
+        defaultGmtModified.addElement(new TextElement(Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getActualColumnName).orElse("gmt_modified") + " = " + CommonPluginUtil.getCurrentTimestamp(introspectedTable) + ","));
 
         setItem.getElements().add(gmtModifiedItemIndex + 1, defaultGmtModified);
     }
