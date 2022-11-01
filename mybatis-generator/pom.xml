@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.github.elongdeo</groupId>
         <artifactId>mybatis</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </parent>
     <artifactId>mybatis-generator</artifactId>
     <name>mybatis-generator</name>

@@ -6,7 +6,7 @@
     <groupId>io.github.elongdeo</groupId>
     <artifactId>mybatis</artifactId>
     <name>mybatis</name>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>pom</packaging>
     <url>https://github.com/elongdeo/mybatis</url>
     <description>深度定制的mybatis代码生成插件</description>
