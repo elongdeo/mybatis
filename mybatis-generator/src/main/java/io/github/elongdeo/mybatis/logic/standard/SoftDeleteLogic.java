@@ -13,7 +13,6 @@ import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.config.Context;
 
 import java.util.*;
 
@@ -29,11 +28,10 @@ public class SoftDeleteLogic {
     /**
      * 替换mapper.xml中deleteByPrimaryKey
      *
-     * @param context           上下文
      * @param deleteElement     按主键删除的代码
      * @param introspectedTable 表配置信息
      */
-    public static void softDeleteSqlMapDeleteByPrimaryKey(Context context, Properties properties, XmlElement deleteElement,
+    public static void softDeleteSqlMapDeleteByPrimaryKey(Properties properties, XmlElement deleteElement,
                                                           IntrospectedTable introspectedTable) {
         if (!PluginConfig.softDeleteAble) {
             return;
@@ -42,7 +40,6 @@ public class SoftDeleteLogic {
         deleteElement.setName("update");
         deleteElement.getElements().clear();
         deleteElement.getAttributes().clear();
-        context.getCommentGenerator().addComment(deleteElement); // TODO 是否可以删除？
         Attribute idAttr = new Attribute("id", "deleteByPrimaryKey");
         Attribute parameterTypeAttr = new Attribute("parameterType", introspectedTable
                 .getBaseRecordType());
@@ -309,7 +306,7 @@ public class SoftDeleteLogic {
         if (!PluginConfig.softDeleteAble) {
             return;
         }
-        Element orderByXml = element.getElements().stream().filter(element1 -> {
+        Optional<Element> optional = element.getElements().stream().filter(element1 -> {
                     if (element1 instanceof XmlElement) {
                         XmlElement element2 = (XmlElement) element1;
                         return "if".equals(element2.getName()) && element2.getAttributes().stream()
@@ -319,7 +316,11 @@ public class SoftDeleteLogic {
                         return false;
                     }
                 }
-        ).findAny().get();
+        ).findAny();
+        if(!optional.isPresent()){
+            return ;
+        }
+        Element orderByXml = optional.get();
         int index = element.getElements().indexOf(orderByXml);
 
         XmlElement isdeletedElement = new XmlElement("if");
@@ -352,7 +353,7 @@ public class SoftDeleteLogic {
     /**
      * 增加修改时间
      *
-     * @param gmtModifiedColumn
+     * @param gmtModifiedColumn 修改时间字段
      * @param setItem              被修改元素
      * @param gmtModifiedItemIndex 坐标
      * @param prefix               前缀
@@ -370,7 +371,7 @@ public class SoftDeleteLogic {
     /**
      * 增加修改人
      *
-     * @param modifierColumn
+     * @param modifierColumn 修改人字段
      * @param setItem           被修改元素
      * @param modifierItemIndex 坐标
      * @param prefix            前缀

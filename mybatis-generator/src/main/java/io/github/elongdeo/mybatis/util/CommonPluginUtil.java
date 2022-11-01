@@ -271,7 +271,8 @@ public class CommonPluginUtil {
      * @return 是否生效的条件
      */
     public static String getEnableCondition(Properties properties, IntrospectedTable introspectedTable, boolean enable) {
-        String columnName = getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_ENABLE_COLUMN_NAME, "enable");
+        IntrospectedColumn specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
+        String columnName = Optional.ofNullable(specialColumn).map(IntrospectedColumn::getActualColumnName).orElse( "is_enable");
         boolean logicalFlip = isEnableLogicalFlip(properties, introspectedTable);
         if(enable){
             return columnName + " = " + (logicalFlip ? "0" : "1");

@@ -31,7 +31,7 @@ public class SoftDeletePlugin extends PluginAdapter {
     public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element,
                                                             IntrospectedTable introspectedTable) {
         //原有的deleteByPrimaryKey不需要，进行自定义
-        SoftDeleteLogic.softDeleteSqlMapDeleteByPrimaryKey(context, properties, element, introspectedTable);
+        SoftDeleteLogic.softDeleteSqlMapDeleteByPrimaryKey(properties, element, introspectedTable);
         return true;
     }
 
