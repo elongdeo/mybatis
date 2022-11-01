@@ -326,7 +326,7 @@ public class Plugin extends PluginAdapter {
                 fieldItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", specialColumn.getActualColumnName() + ","));
                 valueItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1" + ","));
             } else {
-                fieldItem.addElement(1, buildIfXml("enable == null", "enable,"));
+                fieldItem.addElement(1, buildIfXml("enable == null", "is_enable,"));
                 fieldItem.addElement(1, buildIfXml("enable == null", CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1" + ","));
             }
         }
@@ -487,7 +487,7 @@ public class Plugin extends PluginAdapter {
     public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element,
                                                             IntrospectedTable introspectedTable) {
         //原有的deleteByPrimaryKey不需要，进行自定义
-        softDeleteSqlMapDeleteByPrimaryKey(context, properties, element, introspectedTable);
+        softDeleteSqlMapDeleteByPrimaryKey(properties, element, introspectedTable);
         return true;
     }
 

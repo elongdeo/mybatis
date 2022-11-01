@@ -5,7 +5,7 @@ public enum BaseDoPropertyEnum {
     CREATOR("creator", "creator"),
     GMT_MODIFIED("gmtModified", "gmt_modified"),
     MODIFIER("modifier", "modifier"),
-    ENABLE("enable", "enable");
+    ENABLE("enable", "is_enable");
     private String propertyName;
     private String columnName;
 
