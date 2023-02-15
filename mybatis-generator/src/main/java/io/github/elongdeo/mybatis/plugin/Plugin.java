@@ -6,7 +6,6 @@ import io.github.elongdeo.mybatis.logic.standard.BooleanPropertyLogic;
 import io.github.elongdeo.mybatis.logic.standard.FlushCacheLogic;
 import io.github.elongdeo.mybatis.constants.BaseDoPropertyEnum;
 import io.github.elongdeo.mybatis.constants.PluginConfig;
-import io.github.elongdeo.mybatis.constants.PluginConstants;
 import io.github.elongdeo.mybatis.logic.standard.BLOBPropertyLogic;
 import io.github.elongdeo.mybatis.logic.standard.DoSuffixLogic;
 import io.github.elongdeo.mybatis.util.CommonPluginUtil;
@@ -25,8 +24,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.github.elongdeo.mybatis.constants.PluginConstants.*;
+import static io.github.elongdeo.mybatis.util.PluginConfigConstants.*;
 import static io.github.elongdeo.mybatis.logic.extend.RepoLogic.addRepoJava;
 import static io.github.elongdeo.mybatis.logic.standard.SoftDeleteLogic.*;
+import static io.github.elongdeo.mybatis.util.CommonPluginUtil.getSpecialColumn;
 import static io.github.elongdeo.mybatis.util.CommonPluginUtil.initRepoConfig;
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
@@ -170,7 +171,7 @@ public class Plugin extends PluginAdapter {
         // 生成批量插入方法
         CommonPluginUtil.generateInsertList(document, properties, introspectedTable);
         // 标记flushCache=true
-        FlushCacheLogic.markFlushCacheTrue(parentElement, introspectedTable);
+        FlushCacheLogic.markFlushCacheTrue(parentElement, properties, introspectedTable);
         // 更新允许空值
         AssignedFieldLogic.enableUpdateNullField(parentElement);
         // 将UpdateByExample中的set元素抽取出来
@@ -320,14 +321,11 @@ public class Plugin extends PluginAdapter {
                 fieldItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", specialColumn.getActualColumnName() + ","));
                 valueItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", CommonPluginUtil.getCurrentTimestamp(introspectedTable) + ","));
             }
-            // 逻辑删除
+            // 逻辑删除(可选)
             specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
             if (specialColumn != null) {
                 fieldItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", specialColumn.getActualColumnName() + ","));
                 valueItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1" + ","));
-            } else {
-                fieldItem.addElement(1, buildIfXml("enable == null", "is_enable,"));
-                fieldItem.addElement(1, buildIfXml("enable == null", CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1" + ","));
             }
         }
     }
@@ -619,11 +617,12 @@ public class Plugin extends PluginAdapter {
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        enableAnnotationAccessors = isTrue(properties.getProperty(PROPERTY_ENABLE_ANNOTATION_ACCESSORS));
-        enableAnnotationData = isTrue(properties.getProperty(PROPERTY_ENABLE_ANNOTATION_DATA));
-        enableAnnotationBuilder = isTrue(properties.getProperty(PROPERTY_ENABLE_ANNOTATION_BUILDER));
-        baseDoOverride = isTrue(properties.getProperty(PROPERTY_BASE_DO_OVERRIDE));
-        PluginConfig.forceString = isTrue(properties.getProperty(PROPERTY_ENABLE_FORCE_STRING));
+        enableAnnotationAccessors = isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_ANNOTATION_ACCESSORS, null));
+        enableAnnotationData = isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_ANNOTATION_DATA, null));
+        enableAnnotationBuilder = isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_ANNOTATION_BUILDER, null));
+        baseDoOverride = isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_BASE_DO_OVERRIDE, null));
+        PluginConfig.forceString = isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_FORCE_STRING, null));
+        PluginConfig.softDeleteAble = getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE) != null;
         // 处理基础字段别名映射
         for (BaseDoPropertyEnum propertyEnum : BaseDoPropertyEnum.values()) {
             for (IntrospectedColumn specialColumn : CommonPluginUtil.getSpecialColumns(properties, introspectedTable, propertyEnum)) {
@@ -639,20 +638,16 @@ public class Plugin extends PluginAdapter {
         // 标记片键
         CommonPluginUtil.markShardingKey(introspectedTable);
         // 使用数据库自增值
-        introspectedTable.setUseGeneratedKeys(StringUtility.isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_INSERT_USE_GENERATED_KEYS, "false")));
+        introspectedTable.setUseGeneratedKeys(StringUtility.isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_INSERT_USE_GENERATED_KEYS, "false")));
         if (introspectedTable.isUseGeneratedKeys()) {
             introspectedTable.getTableConfiguration().setGeneratedKey(new GeneratedKey("id", "JDBC", true, "JDBC"));
         }
         // 初始化Repo配置
         initRepoConfig(introspectedTable, properties);
         // 解析是否忽略Criterion值为空
-        introspectedTable.setIgnoreCriterionValueNull(STRING_TRUE.equals(properties.getProperty(PROPERTY_IGNORE_CRITERION_VALUE_NULL)));
+        introspectedTable.setIgnoreCriterionValueNull(STRING_TRUE.equals(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_IGNORE_CRITERION_VALUE_NULL, "false")));
         // 解析创建修改时间精度
-        introspectedTable.setDatePrecision(Optional.ofNullable(properties.getProperty(PROPERTY_DATE_PRECISION)).filter(StringUtils::isNumeric).map(Integer::valueOf).orElse(0));
-        Optional<Integer> tableDatePrecisionOptional = Optional.ofNullable(introspectedTable.getTableConfigurationProperty(PROPERTY_DATE_PRECISION)).filter(StringUtils::isNumeric).map(Integer::valueOf);
-        if (tableDatePrecisionOptional.isPresent()) {
-            introspectedTable.setDatePrecision(tableDatePrecisionOptional.orElse(0));
-        }
+        introspectedTable.setDatePrecision(Optional.ofNullable(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_DATE_PRECISION, "0")).filter(StringUtils::isNumeric).map(Integer::valueOf).orElse(0));
     }
 
     /**

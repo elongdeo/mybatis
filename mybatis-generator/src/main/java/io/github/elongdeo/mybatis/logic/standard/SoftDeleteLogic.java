@@ -34,6 +34,12 @@ public class SoftDeleteLogic {
     public static void softDeleteSqlMapDeleteByPrimaryKey(Properties properties, XmlElement deleteElement,
                                                           IntrospectedTable introspectedTable) {
         if (!PluginConfig.softDeleteAble) {
+            // 删除原有属性
+            deleteElement.getAttributes().removeIf(attr -> "parameterType".equals(attr.getName()));
+            // 新增新的属性
+            Attribute parameterTypeAttr = new Attribute("parameterType", introspectedTable
+                    .getBaseRecordType());
+            deleteElement.getAttributes().add(parameterTypeAttr);
             return;
         }
         // 重置xml内容
@@ -53,7 +59,7 @@ public class SoftDeleteLogic {
         sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         sb.append(" set ");
         // 逻辑删除字段
-        sb.append(CommonPluginUtil.getEnableCondition(properties, introspectedTable, false));
+        sb.append(CommonPluginUtil.getDeleteSql(properties, introspectedTable));
         // 修改人字段(可选)
         List<IntrospectedColumn> modifierColumns = CommonPluginUtil.getSpecialColumns(properties, introspectedTable, BaseDoPropertyEnum.MODIFIER);
         for (IntrospectedColumn modifierColumn : modifierColumns) {
@@ -107,9 +113,6 @@ public class SoftDeleteLogic {
      * @param introspectedTable 表配置信息
      */
     public static void softDeleteClientDeleteByPrimaryKey(Method method, IntrospectedTable introspectedTable) {
-        if (!PluginConfig.softDeleteAble) {
-            return;
-        }
         Parameter parameter = new Parameter(new FullyQualifiedJavaType(
                 introspectedTable.getBaseRecordType()), "record");
         method.getParameters().clear();
@@ -127,7 +130,7 @@ public class SoftDeleteLogic {
         if (!PluginConfig.softDeleteAble) {
             return;
         }
-        element.addElement(createAndNotDeleteElement(properties, introspectedTable));
+        element.addElement(createAndEnableElement(properties, introspectedTable));
     }
 
     /**
@@ -144,7 +147,7 @@ public class SoftDeleteLogic {
         XmlElement isNotNullElement = new XmlElement("if");
         isNotNullElement.addAttribute(new Attribute("test",
                 "oredCriteria.size != 0"));
-        isNotNullElement.addElement(createAndNotDeleteElement(properties, introspectedTable));
+        isNotNullElement.addElement(createAndEnableElement(properties, introspectedTable));
         XmlElement shardingKeyEq = getShardingKeyEq(introspectedTable, "");
         if (shardingKeyEq != null) {
             isNotNullElement.addElement(shardingKeyEq);
@@ -153,7 +156,7 @@ public class SoftDeleteLogic {
         isNotNullElement = new XmlElement("if");
         isNotNullElement.addAttribute(new Attribute("test",
                 "oredCriteria.size == 0"));
-        isNotNullElement.addElement(createWhereNotDeleteElement(properties, introspectedTable));
+        isNotNullElement.addElement(createWhereEnableElement(properties, introspectedTable));
         if (shardingKeyEq != null) {
             isNotNullElement.addElement(shardingKeyEq);
         }
@@ -209,7 +212,7 @@ public class SoftDeleteLogic {
             addGmtModifiedXmlElement(gmtModifiedColumn, setItem, gmtModifiedItemIndex, "", introspectedTable);
         }
 
-        element.addElement(createAndNotDeleteElement(properties, introspectedTable));
+        element.addElement(createAndEnableElement(properties, introspectedTable));
     }
 
     /**
@@ -220,9 +223,6 @@ public class SoftDeleteLogic {
      * @param introspectedTable 表配置信息
      */
     public static void softDeleteSqlMapUpdateByExampleSelective(XmlElement element, Properties properties, IntrospectedTable introspectedTable) {
-        if (!PluginConfig.softDeleteAble) {
-            return;
-        }
         List<Element> elements = element.getElements();
         XmlElement setItem = null;
         int modifierItemIndex = -1;
@@ -275,11 +275,13 @@ public class SoftDeleteLogic {
         if (gmtModifiedItemIndex != -1) {
             addGmtModifiedXmlElement(gmtModifiedColumn, setItem, gmtModifiedItemIndex, "record.", introspectedTable);
         }
-
+        if (!PluginConfig.softDeleteAble) {
+            return;
+        }
         XmlElement isdeletedElement = new XmlElement("if");
         isdeletedElement.addAttribute(new Attribute("test",
                 "example.oredCriteria.size == 0"));
-        isdeletedElement.addElement(createWhereNotDeleteElement(properties, introspectedTable));
+        isdeletedElement.addElement(createWhereEnableElement(properties, introspectedTable));
         XmlElement shardingKeyEq = getShardingKeyEq(introspectedTable, "example.");
         if (shardingKeyEq != null) {
             isdeletedElement.addElement(shardingKeyEq);
@@ -288,7 +290,7 @@ public class SoftDeleteLogic {
         isdeletedElement = new XmlElement("if");
         isdeletedElement.addAttribute(new Attribute("test",
                 "example.oredCriteria.size != 0"));
-        isdeletedElement.addElement(createAndNotDeleteElement(properties, introspectedTable));
+        isdeletedElement.addElement(createAndEnableElement(properties, introspectedTable));
         if (shardingKeyEq != null) {
             isdeletedElement.addElement(shardingKeyEq);
         }
@@ -326,7 +328,7 @@ public class SoftDeleteLogic {
         XmlElement isdeletedElement = new XmlElement("if");
         isdeletedElement.addAttribute(new Attribute("test",
                 "oredCriteria.size == 0"));
-        isdeletedElement.addElement(createWhereNotDeleteElement(properties, introspectedTable));
+        isdeletedElement.addElement(createWhereEnableElement(properties, introspectedTable));
         XmlElement shardingKeyEq = getShardingKeyEq(introspectedTable, "");
         if (shardingKeyEq != null) {
             isdeletedElement.addElement(shardingKeyEq);
@@ -335,19 +337,19 @@ public class SoftDeleteLogic {
         isdeletedElement = new XmlElement("if");
         isdeletedElement.addAttribute(new Attribute("test",
                 "oredCriteria.size != 0"));
-        isdeletedElement.addElement(createAndNotDeleteElement(properties, introspectedTable));
+        isdeletedElement.addElement(createAndEnableElement(properties, introspectedTable));
         if (shardingKeyEq != null) {
             isdeletedElement.addElement(shardingKeyEq);
         }
         element.addElement(index, isdeletedElement);
     }
 
-    private static Element createAndNotDeleteElement(Properties properties, IntrospectedTable introspectedTable) {
-        return new TextElement("and " + CommonPluginUtil.getEnableCondition(properties, introspectedTable, true));
+    private static Element createAndEnableElement(Properties properties, IntrospectedTable introspectedTable) {
+        return new TextElement("and " + CommonPluginUtil.getEnableConditionSql(properties, introspectedTable));
     }
 
-    private static Element createWhereNotDeleteElement(Properties properties, IntrospectedTable introspectedTable) {
-        return new TextElement("where " + CommonPluginUtil.getEnableCondition(properties, introspectedTable, true));
+    private static Element createWhereEnableElement(Properties properties, IntrospectedTable introspectedTable) {
+        return new TextElement("where " + CommonPluginUtil.getEnableConditionSql(properties, introspectedTable));
     }
 
     /**

@@ -1,6 +1,7 @@
 package io.github.elongdeo.mybatis.logic.standard;
 
-import io.github.elongdeo.mybatis.constants.PluginConstants;
+import io.github.elongdeo.mybatis.util.CommonPluginUtil;
+import io.github.elongdeo.mybatis.util.PluginConfigConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -8,6 +9,10 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+
+import static io.github.elongdeo.mybatis.util.PluginConfigConstants.PROPERTY_DATE_PRECISION;
+import static io.github.elongdeo.mybatis.util.PluginConfigConstants.PROPERTY_FLUSH_CACHE_METHODS;
 
 
 /**
@@ -18,8 +23,8 @@ import java.util.List;
 public class FlushCacheLogic {
 
 
-    public static void markFlushCacheTrue(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String property = introspectedTable.getTableConfigurationProperty(PluginConstants.PROPERTY_FLUSH_CACHE_METHODS);
+    public static void markFlushCacheTrue(XmlElement parentElement, Properties properties, IntrospectedTable introspectedTable) {
+        String property = CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_FLUSH_CACHE_METHODS, null);
         if (StringUtils.isEmpty(property)) {
             return;
         }

@@ -1,7 +1,6 @@
 package io.github.elongdeo.mybatis.util;
 
 import io.github.elongdeo.mybatis.constants.BaseDoPropertyEnum;
-import io.github.elongdeo.mybatis.constants.PluginConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -18,6 +17,9 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.github.elongdeo.mybatis.constants.PluginConstants.*;
+import static io.github.elongdeo.mybatis.util.PluginConfigConstants.*;
 
 /**
  * 文件工具
@@ -127,7 +129,7 @@ public class CommonPluginUtil {
             } else if (operatorColumns.contains(introspectedColumn)) {
                 defaultValue = "'system'";
             } else if (introspectedColumn == enableColumn) {
-                defaultValue = CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable)? "0" : "1";
+                defaultValue = CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1";
             } else {
                 defaultValue = "default";
             }
@@ -152,7 +154,7 @@ public class CommonPluginUtil {
     }
 
     public static boolean isInsertListEnable(Properties properties, IntrospectedTable introspectedTable) {
-        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_INSERT_LIST_ENABLE, "true"));
+        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PROPERTY_INSERT_LIST_ENABLE, "true"));
     }
 
     /**
@@ -163,7 +165,7 @@ public class CommonPluginUtil {
     public static void markShardingKey(IntrospectedTable introspectedTable) {
         // 主动标记
         introspectedTable.getAllColumns().stream()
-                .filter(column -> PluginConstants.STRING_TRUE.equals(column.getProperties().getProperty(PluginConstants.PROPERTY_INSERT_IS_SHARDING_KEY)))
+                .filter(column -> STRING_TRUE.equals(column.getProperties().getProperty(PROPERTY_INSERT_IS_SHARDING_KEY)))
                 .forEach(column -> {
                     column.setShardingKey(true);
                     System.out.println("[INFO] 找到" + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime() + "表标记的片键：" + column.getActualColumnName());
@@ -200,14 +202,14 @@ public class CommonPluginUtil {
      */
     public static void initRepoConfig(IntrospectedTable introspectedTable, Properties properties) {
         // 使用生成Repo
-        String repoImplPackage = properties.getProperty(PluginConstants.PROPERTY_REPO_IMPL_PACKAGE);
-        String repoPackage = properties.getProperty(PluginConstants.PROPERTY_REPO_PACKAGE);
-        boolean repoNoInterface = PluginConstants.STRING_TRUE.equals(properties.getProperty(PluginConstants.PROPERTY_REPO_NO_INTERFACE));
-        boolean repoEnable = StringUtility.isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_REPO_ENABLE, "false"));
-        if (StringUtils.isNotEmpty(repoImplPackage) && StringUtils.isNotEmpty(repoPackage) && repoEnable) {
-            String repoSuffix = properties.getProperty(PluginConstants.PROPERTY_REPO_SUFFIX, "Repo");
-            GeneratedRepo generatedRepo = new GeneratedRepo(repoSuffix, repoPackage, repoImplPackage, repoNoInterface,
-                    introspectedTable.getTableConfigurationProperty(PluginConstants.PROPERTY_REPO_AUTOWIRED_SEQUENCE_NAME));
+        String repoImplPackage = CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_REPO_IMPL_PACKAGE, null);
+        String repoPackage = CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_REPO_PACKAGE, null);
+        boolean repoNoInterface = STRING_TRUE.equals(properties.getProperty(PROPERTY_REPO_NO_INTERFACE));
+        boolean repoEnable = StringUtility.isTrue(CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_REPO_ENABLE, "false"));
+        if (StringUtils.isNotEmpty(repoImplPackage) && repoEnable) {
+            String repoSuffix = CommonPluginUtil.getTableAndPluginProperty(properties, introspectedTable, PROPERTY_REPO_SUFFIX, "Repo");
+            GeneratedRepo generatedRepo = new GeneratedRepo(repoSuffix, repoPackage, repoImplPackage, repoNoInterface || StringUtils.isNotEmpty(repoPackage),
+                    introspectedTable.getTableConfigurationProperty(PROPERTY_REPO_AUTOWIRED_SEQUENCE_NAME));
             introspectedTable.setGeneratedRepo(generatedRepo);
         }
     }
@@ -226,7 +228,7 @@ public class CommonPluginUtil {
      *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
-     * @param propertyEnum        基础字段枚举
+     * @param propertyEnum      基础字段枚举
      * @return 匹配的列列表
      */
     public static List<IntrospectedColumn> getSpecialColumns(Properties properties, IntrospectedTable introspectedTable, BaseDoPropertyEnum propertyEnum) {
@@ -240,12 +242,13 @@ public class CommonPluginUtil {
         return introspectedTable.getAllColumns().stream()
                 .filter(column -> columnNames.contains(column.getActualColumnName())).collect(Collectors.toList());
     }
+
     /**
      * 获取指定列
      *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
-     * @param propertyEnum        基础字段枚举
+     * @param propertyEnum      基础字段枚举
      * @return 匹配的列列表
      */
     public static IntrospectedColumn getSpecialColumn(Properties properties, IntrospectedTable introspectedTable, BaseDoPropertyEnum propertyEnum) {
@@ -255,6 +258,7 @@ public class CommonPluginUtil {
 
     /**
      * 获取表或者插件的配置
+     *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
      * @return 表或者插件的配置
@@ -263,53 +267,75 @@ public class CommonPluginUtil {
         return Optional.ofNullable(introspectedTable.getTableConfigurationProperty(propertyName))
                 .orElse(properties.getProperty(propertyName, defaultValue));
     }
+
     /**
-     * 获取是否生效的条件
+     * 获取生效条件的sql
+     *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
-     * @param enable 是否生效
-     * @return 是否生效的条件
+     * @return 生效条件的sql
      */
-    public static String getEnableCondition(Properties properties, IntrospectedTable introspectedTable, boolean enable) {
-        IntrospectedColumn specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
-        String columnName = Optional.ofNullable(specialColumn).map(IntrospectedColumn::getActualColumnName).orElse( "is_enable");
-        boolean logicalFlip = isEnableLogicalFlip(properties, introspectedTable);
-        if(enable){
-            return columnName + " = " + (logicalFlip ? "0" : "1");
-        }else{
-            return columnName + " = " + (logicalFlip ? "1" : "0");
+    public static String getEnableConditionSql(Properties properties, IntrospectedTable introspectedTable) {
+        String enableCondition = getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_CONDITION_SQL, null);
+        if (enableCondition != null) {
+            return enableCondition;
         }
+        IntrospectedColumn specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
+        String columnName = Optional.ofNullable(specialColumn).map(IntrospectedColumn::getActualColumnName).orElse("is_enable");
+        boolean logicalFlip = isEnableLogicalFlip(properties, introspectedTable);
+        return columnName + " = " + (logicalFlip ? "0" : "1");
+    }
+
+    /**
+     * 获取删除的sql
+     *
+     * @param properties        插件配置信息
+     * @param introspectedTable 表配置信息
+     * @return 删除的sql
+     */
+    public static String getDeleteSql(Properties properties, IntrospectedTable introspectedTable) {
+        String deleteSql = getTableAndPluginProperty(properties, introspectedTable, PROPERTY_DELETE_SQL, null);
+        if (deleteSql != null) {
+            return deleteSql;
+        }
+        IntrospectedColumn specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
+        String columnName = Optional.ofNullable(specialColumn).map(IntrospectedColumn::getActualColumnName).orElse("is_enable");
+        boolean logicalFlip = isEnableLogicalFlip(properties, introspectedTable);
+        return columnName + " = " + (logicalFlip ? "1" : "0");
     }
 
     /**
      * 获取是否生效的逻辑是否翻转
+     *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
      * @return 是否生效的逻辑是否翻转
      */
     public static boolean isEnableLogicalFlip(Properties properties, IntrospectedTable introspectedTable) {
-        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_ENABLE_COLUMN_LOGICAL_FLIP, "false"));
+        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PROPERTY_ENABLE_COLUMN_LOGICAL_FLIP, "false"));
     }
 
     /**
      * 获取是否使用UUID生成主键
+     *
      * @param properties        插件配置信息
      * @param introspectedTable 表配置信息
      * @return 是否使用UUID生成主键
      */
     public static boolean isGeneratedUuidKey(Properties properties, IntrospectedTable introspectedTable) {
-        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PluginConstants.PROPERTY_GENERATED_UUID_KEY, "false"));
+        return StringUtility.isTrue(getTableAndPluginProperty(properties, introspectedTable, PROPERTY_GENERATED_UUID_KEY, "false"));
     }
 
     /**
      * 获取主键类型
+     *
      * @param introspectedTable 表配置信息
      * @return 主键类型
      */
     public static String getPrimaryKeyType(IntrospectedTable introspectedTable) {
         IntrospectedColumn column = introspectedTable.getColumn("id");
-        if(column == null){
-            throw new RuntimeException("table '" + introspectedTable.getFullyQualifiedTable()+"' does not have a primary key named 'id'");
+        if (column == null) {
+            throw new RuntimeException("table '" + introspectedTable.getFullyQualifiedTable() + "' does not have a primary key named 'id'");
         }
         return column.getFullyQualifiedJavaType().getFullyQualifiedName();
     }
