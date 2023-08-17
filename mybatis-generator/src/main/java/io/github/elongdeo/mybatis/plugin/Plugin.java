@@ -42,6 +42,7 @@ import static org.mybatis.generator.internal.util.StringUtility.isTrue;
  * @date 2018年04月28日10:45:04
  */
 public class Plugin extends PluginAdapter {
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     /**
      * 是否使用Lombok的@Data注解
@@ -104,6 +105,33 @@ public class Plugin extends PluginAdapter {
             topLevelClass.addImportedType(CLASS_BASE_EXAMPLE);
             topLevelClass.setSuperClass(CLASS_BASE_EXAMPLE);
         }
+        // 增加字段枚举
+        InnerEnum innerEnum = new InnerEnum(new FullyQualifiedJavaType("ColumnEnum"));
+        innerEnum.setVisibility(JavaVisibility.PUBLIC);
+        List<IntrospectedColumn> allColumns = introspectedTable.getAllColumns();
+        allColumns.forEach((col) -> {
+            String format = String.format("/**%s         * %s%s         */%s        %s", LINE_SEPARATOR, col.getRemarks(), LINE_SEPARATOR, LINE_SEPARATOR, col.getActualColumnName().toUpperCase());
+            innerEnum.addEnumConstant(format);
+        });
+        topLevelClass.getInnerEnums().add(innerEnum);
+        InnerEnum sortTypeEnum = new InnerEnum(new FullyQualifiedJavaType("SortTypeEnum"));
+        sortTypeEnum.setVisibility(JavaVisibility.PUBLIC);
+        sortTypeEnum.addEnumConstant(String.format("/**%s         * 升序%s         */%s        ASC", LINE_SEPARATOR, LINE_SEPARATOR, LINE_SEPARATOR));
+        sortTypeEnum.addEnumConstant(String.format("/**%s         * 降序%s         */%s        DESC", LINE_SEPARATOR, LINE_SEPARATOR, LINE_SEPARATOR));
+        topLevelClass.getInnerEnums().add(sortTypeEnum);
+        Method method = new Method("appendOrderByClause");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(topLevelClass.getType());
+        method.addParameter(new Parameter(new FullyQualifiedJavaType("ColumnEnum"), "columnEnum"));
+        method.addParameter(new Parameter(new FullyQualifiedJavaType("SortTypeEnum"), "sortTypeEnum"));
+        method.addBodyLine("String split = orderByClause == null || orderByClause.trim().length() == 0 ? \" \" : \",\";");
+        method.addBodyLine("if (orderByClause != null) {");
+        method.addBodyLine("orderByClause += (split + columnEnum.name().toLowerCase() + \" \" + sortTypeEnum.name());");
+        method.addBodyLine("} else {");
+        method.addBodyLine("orderByClause = split + columnEnum.name().toLowerCase() + \" \" + sortTypeEnum.name();");
+        method.addBodyLine("}");
+        method.addBodyLine("return this;");
+        topLevelClass.addMethod(method);
         return super.modelExampleClassGenerated(topLevelClass,
                 introspectedTable);
     }
@@ -325,7 +353,7 @@ public class Plugin extends PluginAdapter {
             specialColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
             if (specialColumn != null) {
                 fieldItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", specialColumn.getActualColumnName() + ","));
-                valueItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1" + ","));
+                valueItem.addElement(1, buildIfXml(specialColumn.getJavaProperty() + " == null", (CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable) ? "0" : "1") + ","));
             }
         }
     }

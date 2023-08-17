@@ -171,47 +171,10 @@ public class SoftDeleteLogic {
      * @param introspectedTable 表配置信息
      */
     public static void softDeleteSqlMapUpdateByPrimaryKeySelective(XmlElement element, Properties properties, IntrospectedTable introspectedTable) {
+        modifyUpdateSetXml(element, properties, introspectedTable, "");
         if (!PluginConfig.softDeleteAble) {
             return;
         }
-        List<Element> elements = element.getElements();
-        XmlElement setItem = null;
-        int modifierItemIndex = -1;
-        int gmtModifiedItemIndex = -1;
-        IntrospectedColumn modifierColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.MODIFIER);
-        IntrospectedColumn gmtModifiedColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.GMT_MODIFIED);
-        String modifierIsNotNull = Optional.ofNullable(modifierColumn).map(IntrospectedColumn::getJavaProperty).orElse("modifier") + " != null";
-        String gmtModifiedIsNotNull = Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtModified") + " != null";
-        for (Element e : elements) {
-            if (e instanceof XmlElement && "set".equals(((XmlElement) e).getName())) {
-                setItem = (XmlElement) e;
-                for (int i = 0; i < setItem.getElements().size(); i++) {
-                    Element element1 = setItem.getElements().get(i);
-                    XmlElement xmlElement = (XmlElement) element1;
-                    for (Attribute att : xmlElement.getAttributes()) {
-                        if (modifierIsNotNull.equals(att.getValue())) {
-                            modifierItemIndex = i;
-                            break;
-                        }
-                        if (gmtModifiedIsNotNull.equals(att.getValue())) {
-                            gmtModifiedItemIndex = i;
-                            break;
-                        }
-
-                    }
-                }
-            }
-
-        }
-
-        if (modifierItemIndex != -1) {
-            addXmlElementModifier(modifierColumn, setItem, modifierItemIndex, "");
-        }
-
-        if (gmtModifiedItemIndex != -1) {
-            addGmtModifiedXmlElement(gmtModifiedColumn, setItem, gmtModifiedItemIndex, "", introspectedTable);
-        }
-
         element.addElement(createAndEnableElement(properties, introspectedTable));
     }
 
@@ -223,61 +186,11 @@ public class SoftDeleteLogic {
      * @param introspectedTable 表配置信息
      */
     public static void softDeleteSqlMapUpdateByExampleSelective(XmlElement element, Properties properties, IntrospectedTable introspectedTable) {
-        List<Element> elements = element.getElements();
-        XmlElement setItem = null;
-        int modifierItemIndex = -1;
-        int gmtModifiedItemIndex = -1;
-        IntrospectedColumn creatorColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.CREATOR);
-        IntrospectedColumn gmtCreateColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.GMT_CREATE);
-        String creatorIsNotNull = "record." + Optional.ofNullable(creatorColumn).map(IntrospectedColumn::getJavaProperty).orElse("creator") + " != null";
-        String gmtCreateIsNotNull = "record." + Optional.ofNullable(gmtCreateColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtCreate") + " != null";
-        IntrospectedColumn modifierColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.MODIFIER);
-        IntrospectedColumn gmtModifiedColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.GMT_MODIFIED);
-        String modifierIsNotNull = "record." + Optional.ofNullable(modifierColumn).map(IntrospectedColumn::getJavaProperty).orElse("modifier") + " != null";
-        String gmtModifiedIsNotNull = "record." + Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtModified") + " != null";
-        for (Element e : elements) {
-            if (e instanceof XmlElement) {
-                if ("set".equals(((XmlElement) e).getName())) {
-                    setItem = (XmlElement) e;
-                    setItem.getElements().removeIf(element1 -> {
-                        if (element1 instanceof XmlElement) {
-                            XmlElement xmlElement = (XmlElement) element1;
-                            return xmlElement.getAttributes().stream()
-                                    .anyMatch(attribute -> "test".equals(attribute.getName())
-                                            && ("record.id != null".equals(attribute.getValue())
-                                            || creatorIsNotNull.equals(attribute.getValue())
-                                            || gmtCreateIsNotNull.equals(attribute.getValue())));
-                        }
-                        return false;
-                    });
-                    for (int i = 0; i < setItem.getElements().size(); i++) {
-                        XmlElement xmlElement = (XmlElement) setItem.getElements().get(i);
-                        for (Attribute att : xmlElement.getAttributes()) {
-                            if (modifierIsNotNull.equals(att.getValue())) {
-                                modifierItemIndex = i;
-                                break;
-                            }
-                            if (gmtModifiedIsNotNull.equals(att.getValue())) {
-                                gmtModifiedItemIndex = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        if (modifierItemIndex != -1) {
-            addXmlElementModifier(modifierColumn, setItem, modifierItemIndex, "record.");
-        }
-
-        if (gmtModifiedItemIndex != -1) {
-            addGmtModifiedXmlElement(gmtModifiedColumn, setItem, gmtModifiedItemIndex, "record.", introspectedTable);
-        }
+        modifyUpdateSetXml(element, properties, introspectedTable, "record.");
         if (!PluginConfig.softDeleteAble) {
             return;
         }
+        // 增加逻辑删除的条件
         XmlElement isdeletedElement = new XmlElement("if");
         isdeletedElement.addAttribute(new Attribute("test",
                 "example.oredCriteria.size == 0"));
@@ -295,6 +208,89 @@ public class SoftDeleteLogic {
             isdeletedElement.addElement(shardingKeyEq);
         }
         element.addElement(isdeletedElement);
+    }
+
+    private static void modifyUpdateSetXml(XmlElement element, Properties properties, IntrospectedTable introspectedTable, String prefix) {
+        List<Element> elements = element.getElements();
+        XmlElement setItem = null;
+        int modifierItemIndex = -1;
+        int gmtModifiedItemIndex = -1;
+        IntrospectedColumn modifierColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.MODIFIER);
+        IntrospectedColumn gmtModifiedColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.GMT_MODIFIED);
+        String modifierIsNotNull = prefix + Optional.ofNullable(modifierColumn).map(IntrospectedColumn::getJavaProperty).orElse("modifier") + " != null";
+        String gmtModifiedIsNotNull = prefix + Optional.ofNullable(gmtModifiedColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtModified") + " != null";
+        for (Element e : elements) {
+            if (e instanceof XmlElement) {
+                if ("set".equals(((XmlElement) e).getName())) {
+                    setItem = (XmlElement) e;
+                }
+            }
+        }
+        if(setItem == null){
+            return;
+        }
+        // 删除id、创建人、创建时间更新字段
+        IntrospectedColumn creatorColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.CREATOR);
+        IntrospectedColumn gmtCreateColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.GMT_CREATE);
+        String creatorIsNotNull = prefix + Optional.ofNullable(creatorColumn).map(IntrospectedColumn::getJavaProperty).orElse("creator") + " != null";
+        String gmtCreateIsNotNull = prefix + Optional.ofNullable(gmtCreateColumn).map(IntrospectedColumn::getJavaProperty).orElse("gmtCreate") + " != null";
+        setItem.getElements().removeIf(element1 -> {
+            if (element1 instanceof XmlElement) {
+                XmlElement xmlElement = (XmlElement) element1;
+                return xmlElement.getAttributes().stream()
+                        .anyMatch(attribute -> "test".equals(attribute.getName())
+                                && ((prefix + "id != null").equals(attribute.getValue())
+                                || creatorIsNotNull.equals(attribute.getValue())
+                                || gmtCreateIsNotNull.equals(attribute.getValue())));
+            }
+            return false;
+        });
+        // 找到修改人、修改时间的节点，增加默认修改人和修改时间
+        for (int i = 0; i < setItem.getElements().size(); i++) {
+            XmlElement xmlElement = (XmlElement) setItem.getElements().get(i);
+            for (Attribute att : xmlElement.getAttributes()) {
+                if (modifierIsNotNull.equals(att.getValue())) {
+                    modifierItemIndex = i;
+                    break;
+                }
+                if (gmtModifiedIsNotNull.equals(att.getValue())) {
+                    gmtModifiedItemIndex = i;
+                    break;
+                }
+            }
+        }
+        if (modifierItemIndex != -1) {
+            addXmlElementModifier(modifierColumn, setItem, modifierItemIndex, prefix);
+        }
+        if (gmtModifiedItemIndex != -1) {
+            addGmtModifiedXmlElement(gmtModifiedColumn, setItem, gmtModifiedItemIndex, prefix, introspectedTable);
+        }
+        if (!PluginConfig.softDeleteAble) {
+            return;
+        }
+        // 处理逻辑删除取反
+        if(CommonPluginUtil.isEnableLogicalFlip(properties, introspectedTable)){
+            IntrospectedColumn enableColumn = CommonPluginUtil.getSpecialColumn(properties, introspectedTable, BaseDoPropertyEnum.ENABLE);
+            String javaPropertyName = Optional.ofNullable(enableColumn).map(IntrospectedColumn::getJavaProperty).orElse("enable");
+            String enableIsNotNull = prefix + javaPropertyName + " != null";
+            setItem.getElements().forEach(e -> {
+                XmlElement xmlElement = (XmlElement) e;
+                if(xmlElement.getAttributes().stream()
+                        .anyMatch(attribute -> "test".equals(attribute.getName())
+                                && enableIsNotNull.equals(attribute.getValue()))){
+                    String newContent = null;
+                    for (Element elementElement : xmlElement.getElements()) {
+                        if(elementElement instanceof TextElement){
+                            newContent = ((TextElement) elementElement).getContent().replace(javaPropertyName+",",javaPropertyName +" == false,");
+                        }
+                    }
+                    if(newContent != null) {
+                        xmlElement.getElements().clear();
+                        xmlElement.getElements().add(new TextElement(newContent));
+                    }
+                }
+            });
+        }
     }
 
     /**
