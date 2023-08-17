@@ -281,7 +281,7 @@ public class SoftDeleteLogic {
                     String newContent = null;
                     for (Element elementElement : xmlElement.getElements()) {
                         if(elementElement instanceof TextElement){
-                            newContent = ((TextElement) elementElement).getContent().replace(javaPropertyName+",",javaPropertyName +" == false,");
+                            newContent = ((TextElement) elementElement).getContent().replace("#{","(#{").replace("},","}=0),");
                         }
                     }
                     if(newContent != null) {
