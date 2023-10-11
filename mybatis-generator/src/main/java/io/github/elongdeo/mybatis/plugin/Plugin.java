@@ -132,6 +132,10 @@ public class Plugin extends PluginAdapter {
         method.addBodyLine("}");
         method.addBodyLine("return this;");
         topLevelClass.addMethod(method);
+        // 去掉andEnableXX方法
+        for (InnerClass innerClass : topLevelClass.getInnerClasses()) {
+            innerClass.getMethods().removeIf(method1 -> method1.getName().startsWith("andEnable"));
+        }
         return super.modelExampleClassGenerated(topLevelClass,
                 introspectedTable);
     }
