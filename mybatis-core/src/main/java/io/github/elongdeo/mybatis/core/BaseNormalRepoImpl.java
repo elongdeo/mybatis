@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  * @date 2019/12/09
  */
 public abstract class BaseNormalRepoImpl<P, DO extends BaseDO<P>, Example extends BaseExample> implements INormalRepo<P, DO, Example> {
-    @Autowired
     INormalMapper<P, DO, Example> mapper;
 
     @Override
@@ -264,5 +263,14 @@ public abstract class BaseNormalRepoImpl<P, DO extends BaseDO<P>, Example extend
      */
     protected int getInsertListBatchSize() {
         return Constants.INSERT_LIST_BATCH_SIZE;
+    }
+
+    public INormalMapper<P, DO, Example> getMapper() {
+        return mapper;
+    }
+
+    @Autowired
+    public void setMapper(INormalMapper<P, DO, Example> mapper) {
+        this.mapper = mapper;
     }
 }

@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseShardedRepoImpl<P, DO extends BaseShardedDO<P, S>, Example extends BaseShardedExample<S>, S> implements IShardedRepo<P, DO, Example, S> {
 
-    @Autowired
     IShardedMapper<P, DO, Example, S> mapper;
 
     @Override
@@ -291,5 +290,14 @@ public abstract class BaseShardedRepoImpl<P, DO extends BaseShardedDO<P, S>, Exa
      */
     protected int getInsertListBatchSize() {
         return Constants.INSERT_LIST_BATCH_SIZE;
+    }
+
+    public IShardedMapper<P, DO, Example, S> getMapper() {
+        return mapper;
+    }
+
+    @Autowired
+    public void setMapper(IShardedMapper<P, DO, Example, S> mapper) {
+        this.mapper = mapper;
     }
 }
