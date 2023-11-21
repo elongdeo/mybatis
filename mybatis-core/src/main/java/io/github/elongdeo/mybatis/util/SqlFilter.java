@@ -4,7 +4,7 @@ public class SqlFilter {
     private static final int SIZE = 128;
     private static final CharMasks MASKS = new CharMasks(128) {
         {
-            this.addCharToMasks("\\\u0000\n\r'\"");
+            this.addCharToMasks("\\\u0000\n\r'\";");
         }
     };
     private static final boolean[] ESCAPE_CMD_MASKS;

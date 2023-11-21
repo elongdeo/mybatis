@@ -95,7 +95,7 @@ public class Plugin extends PluginAdapter {
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass,
                                               IntrospectedTable introspectedTable) {
         // 增加sql安全校验方法
-        addCheckOrderByMethod(topLevelClass, introspectedTable);
+//        addCheckOrderByMethod(topLevelClass, introspectedTable);
         // 设置父类
         IntrospectedColumn shardingKeyColumn = introspectedTable.getShardingKeyColumn();
         if (shardingKeyColumn != null) {
@@ -143,8 +143,8 @@ public class Plugin extends PluginAdapter {
     /**
      * 添加sql安全校验工具
      *
-     * @param topLevelClass
-     * @param introspectedTable
+     * @param topLevelClass 类
+     * @param introspectedTable 表
      */
     private void addCheckOrderByMethod(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         topLevelClass.addImportedType(new FullyQualifiedJavaType(SQL_SAFE_ORDER_BY_CHECK));
